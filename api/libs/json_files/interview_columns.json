@@ -1,0 +1,52 @@
+[
+		{
+			"dataField" : "candidate_name",
+			"text" : "Candidate Name",
+			"sort" : true
+		},
+		{
+			"dataField" : "candidate_mobile",
+			"text" : "Candidate Mobile",
+			"sort" : true
+		},
+		{
+			"dataField" : "candidate_email",
+			"text" : "Candidate Email",
+			"sort" : true
+		},
+		{
+			"dataField" : "client_mobile",
+			"text" : "Client Mobile",
+			"sort" : true
+		},
+		{
+			"dataField" : "client_email",
+			"text" : "Client Email",
+			"sort" : true
+		},
+		{
+			"dataField" : "job_role",
+			"text" : "Job Role",
+			"sort" : true
+		},
+		{
+			"dataField" : "interview_round_name",
+			"text" : "Interview Round",
+			"sort" : true
+		},
+		{
+			"dataField" : "location",
+			"text" : "interview Location",
+			"sort" : true
+		},
+		{
+			"dataField" : "interview_date",
+			"text" : "interview date",
+			"sort" : true
+		},
+		{
+			"dataField" : "status",
+			"text" : "Status",
+			"sort" : true
+		}
+	]
