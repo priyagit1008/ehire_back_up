@@ -55,9 +55,10 @@ class ClientListSerializer(serializers.ModelSerializer):
        
 
 class ClientDrowpdownGetSerializer(serializers.Serializer):
+    client_id =serializers.CharField(source='id',required=True,min_length=2)
     value = serializers.CharField(source='name',required=True, min_length=2)
     label = serializers.CharField(source='name',required=True, min_length=2)
-    client_id =serializers.CharField(source='id',required=True,min_length=2)
+    
     class Meta:
         model = Client
         fields = ('client_id','value','label')
