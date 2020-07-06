@@ -125,25 +125,25 @@ class InterviewViewSet(GenericViewSet):
 
 
 
-	@action(methods=['put'], detail=False, permission_classes=[IsAuthenticated, HiroolReadWrite], )
+	@action(methods=['put'], detail=False, permission_classes=[IsAuthenticated,], )
 	def interview_update(self, request):
 		"""
 		Return user profile data and groups
 		"""
 		try:
-
-			data = request.data
-			id= request.GET.get('id', None)
-			if not id:
-				return Response({"status": "Failed", "message":"id is required"})
-			serializer = self.get_serializer(self.services.update_interview_service(id), data=request.data)
+			data=request.data
+			id=data["id"]
+			serializer=self.get_serializer(self.services.update_interview_service(id),data=request.data)
 			if not serializer.is_valid():
-				raise ParseException(BAD_REQUEST, serializer.errors)
+				print(serializer.errors)
+				raise ParseException(BAD_REQUEST,serializer.errors)
 			else:
-				serializer.save()
-				return Response(serializer.data, status.HTTP_200_OK)
+				serializer.save()    
+				return Response(serializer.data,status.HTTP_200_OK)
 		except Exception as e:
-			return Response({"status": "Not Found"}, status.HTTP_404_NOT_FOUND)
+			raise
+			return Response({"status":"Not Found"},status.HTTP_404_NOT_FOUND)
+
 
 
 
