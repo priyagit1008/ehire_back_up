@@ -14,15 +14,14 @@ from accounts.models import User
 
 #interview serializer
 class InterviewCreateRequestSerializer(serializers.Serializer):
-    date = serializers.DateField(input_formats=['%d-%m-%Y',],required=False)
-    location = serializers.CharField(required=False)
-    client = serializers.PrimaryKeyRelatedField(queryset=Client.objects.all(),required=False)
-    job=serializers.PrimaryKeyRelatedField(queryset=Job.objects.all(),required=False)
-    interview_round=serializers.PrimaryKeyRelatedField(queryset=InterviewRound.objects.all(),required=False)
-    candidate=serializers.PrimaryKeyRelatedField(queryset=Candidate.objects.all(),required=False)
-    user=serializers.PrimaryKeyRelatedField(queryset=User.objects.all(),required=False)
-    interview_status=serializers.PrimaryKeyRelatedField(queryset=InterviewStatus.objects.all(),required=False)
-
+    date = serializers.DateField(input_formats=['%d-%m-%Y',],required=True)
+    location = serializers.CharField(required=True)
+    client = serializers.PrimaryKeyRelatedField(queryset=Client.objects.all(),required=True)
+    job=serializers.PrimaryKeyRelatedField(queryset=Job.objects.all(),required=True)
+    interview_round=serializers.PrimaryKeyRelatedField(queryset=InterviewRound.objects.all(),required=True)
+    candidate=serializers.PrimaryKeyRelatedField(queryset=Candidate.objects.all(),required=True)
+    user=serializers.PrimaryKeyRelatedField(queryset=User.objects.all(),required=True)
+    interview_status=serializers.PrimaryKeyRelatedField(queryset=InterviewStatus.objects.all(),required=True)
 
 
 
@@ -130,14 +129,14 @@ class InterviewListSerializer(serializers.ModelSerializer):
 ###################################################################################
 class InterviewUpdateSerilaizer(serializers.ModelSerializer):
     id=serializers.CharField(required=True)
-    date = serializers.DateField(input_formats=['%d-%m-%Y',],required=False)
+    date = serializers.DateField(input_formats=['%d-%m-%Y',],required=True)
     location = serializers.CharField(required=True)
-    client = serializers.PrimaryKeyRelatedField(queryset=Client.objects.all(),required=False)
-    job=serializers.PrimaryKeyRelatedField(queryset=Job.objects.all(),required=False)
-    interview_round=serializers.PrimaryKeyRelatedField(queryset=InterviewRound.objects.all(),required=False)
-    candidate=serializers.PrimaryKeyRelatedField(queryset=Candidate.objects.all(),required=False)
-    mesmber=serializers.PrimaryKeyRelatedField(queryset=User.objects.all(),required=False)
-    interview_status=serializers.PrimaryKeyRelatedField(queryset=InterviewStatus.objects.all(),required=False)
+    client = serializers.PrimaryKeyRelatedField(queryset=Client.objects.all(),required=True)
+    job=serializers.PrimaryKeyRelatedField(queryset=Job.objects.all(),required=True)
+    interview_round=serializers.PrimaryKeyRelatedField(queryset=InterviewRound.objects.all(),required=True)
+    candidate=serializers.PrimaryKeyRelatedField(queryset=Candidate.objects.all(),required=True)
+    user=serializers.PrimaryKeyRelatedField(queryset=User.objects.all(),required=True)
+    interview_status=serializers.PrimaryKeyRelatedField(queryset=InterviewStatus.objects.all(),required=True)
 
     # expiring_on = serializers.DateTimeField(required=False)
 

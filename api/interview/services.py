@@ -8,7 +8,7 @@ from candidate.models import Candidate
 class InterviewServices:
 
 	def interview_filter_service(self,filter_data):
-		return Interview.objects.filter(**filter_data).values()
+		return Interview.objects.filter(**filter_data)
 		
 	def get_interview_service(self,id):
 		return Interview.objects.get(id = id)
@@ -22,7 +22,7 @@ class InterviewServices:
 class InterviewRound_Services:
 
 	def interviewround_filter_service(self,filter_data):
-		return Interview.objects.filter(**filter_data).values()
+		return InterviewRound.objects.filter(**filter_data)
 
 	def get_Round_service(self,id):
 		return InterviewRound.objects.get(id=id)

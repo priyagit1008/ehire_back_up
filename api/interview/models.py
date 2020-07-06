@@ -44,30 +44,30 @@ class Interview(TimeStampedModel):
 	# client_id = models.ForeignKey(Client,on_delete=models.PROTECT,related_name='client_id',blank=False,default=None)
 	client= models.ForeignKey(Client,
         on_delete=models.PROTECT,
-        related_name='clients',null=True,blank=True,default=None)
+        related_name='clients',null=True,blank=False,default=None)
 
 	job = models.ForeignKey(Job,on_delete=models.PROTECT,
 		related_name='Jobs',
-		blank=True,null=True,default=None)
+		blank=False,null=True,default=None)
 
 	interview_round= models.ForeignKey(InterviewRound,on_delete=models.PROTECT,
 		related_name='InterviewRounds',
-		blank=True,null=True,default=None)
+		blank=False,null=True,default=None)
 
 	candidate= models.ForeignKey(Candidate,on_delete=models.PROTECT,
 		related_name='Candidates',
-		blank=True,null=True,default=None)
+		blank=False,null=True,default=None)
 
 	user= models.ForeignKey(User,on_delete=models.PROTECT,
 		related_name='accounts',
-		blank=True,null=True,default=None)
+		blank=False,null=True,default=None)
 
-	date = models.DateTimeField()
+	date = models.DateField()
 	location = models.CharField(max_length=256,blank=False,null=False,default=None)
 
 	interview_status= models.ForeignKey(InterviewStatus,on_delete=models.PROTECT,
 		related_name='InterviewStatus',
-		blank=True,default=None,null=True)
+		blank=False,default=None,null=True)
 	# status = models.CharField(max_length=256, choices=STATUS, default=STATUS.active)
 
 

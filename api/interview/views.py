@@ -83,17 +83,19 @@ class InterviewViewSet(GenericViewSet):
 
 		serializer = self.get_serializer(data=request.data)
 		if serializer.is_valid() is False:
-
-			raise ParseException(BAD_REQUEST, serializer.errors)
+			print(serializer.errors)
+			raise ParseException({'status':'Incorrect Input'}, serializer.errors)
 		interview = serializer.create(serializer.validated_data)
 
 		if interview:
-			msg_plain = render_to_string('interview_email_message.txt', {"name":interview.candidate.first_name,"date": interview.date,"location":interview.location})
-			msg_html = render_to_string('interview_email.html',{"name":interview.candidate.first_name,"date": interview.date,"location":interview.location})
-			send_mail('Hirool', msg_plain, settings.EMAIL_HOST_USER, [interview.candidate.email],html_message=msg_html, )
-			return Response(serializer.data,status.HTTP_201_CREATED)
+			# msg_plain = render_to_string('interview_email_message.txt', {"name":interview.candidate.first_name,"date": interview.date,"location":interview.location})
+			# msg_html = render_to_string('interview_email.html',{"name":interview.candidate.first_name,"date": interview.date,"location":interview.location})
+			# send_mail('Hirool', msg_plain, settings.EMAIL_HOST_USER, [interview.candidate.email],html_message=msg_html, )
+			return Response({'status':'Successfully added'},status.HTTP_201_CREATED)
 
 		return Response({"status": "error"}, status.HTTP_404_NOT_FOUND)
+
+
 
 
 
@@ -136,29 +138,16 @@ class InterviewViewSet(GenericViewSet):
 			serializer=self.get_serializer(self.services.update_interview_service(id),data=request.data)
 			if not serializer.is_valid():
 				print(serializer.errors)
-				raise ParseException(BAD_REQUEST,serializer.errors)
+				raise ParseException({'status':'Incorrect Input'},serializer.errors)
 			else:
 				serializer.save()    
-				return Response(serializer.data,status.HTTP_200_OK)
+				return Response({"status":"updated Successfully"},status.HTTP_200_OK)
 		except Exception as e:
 			raise
 			return Response({"status":"Not Found"},status.HTTP_404_NOT_FOUND)
 
 
-
-
-	@action(methods=['get'], detail=False, permission_classes=[])
-	def interview_filter(self, request):
-		"""
-		"""
-		try:
-			id = request.GET["id"]
-			serializer = self.get_serializer(self.services.interview_filter_service(id))
-			return Response(serializer.data, status.HTTP_200_OK)
-		except Exception as e:
-			raise
-			return Response({"status": "Not Found"}, status.HTTP_404_NOT_FOUND)
-
+	
 
 	@action(methods=['get'], detail=False, permission_classes=[])
 	def delete_interview(self,request):
