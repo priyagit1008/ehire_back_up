@@ -19,7 +19,7 @@ class InterviewCreateRequestSerializer(serializers.Serializer):
     client = serializers.PrimaryKeyRelatedField(queryset=Client.objects.all(),required=True)
     job=serializers.PrimaryKeyRelatedField(queryset=Job.objects.all(),required=True)
     interview_round=serializers.PrimaryKeyRelatedField(queryset=InterviewRound.objects.all(),required=True)
-    candidate=serializers.PrimaryKeyRelatedField(queryset=Candidate.objects.all(),required=True)
+    candidate=serializers.SlugRelatedField(queryset=Candidate.objects.all(),required=False,slug_field="email")
     user=serializers.PrimaryKeyRelatedField(queryset=User.objects.all(),required=True)
     interview_status=serializers.PrimaryKeyRelatedField(queryset=InterviewStatus.objects.all(),required=True)
 
