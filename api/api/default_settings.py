@@ -66,7 +66,7 @@ LOCAL_APPS = [
     'clients',
     'interview',
     'libs',
-    'leave_mangement',
+    'leavemangement',
 
 
 

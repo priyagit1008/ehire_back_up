@@ -12,6 +12,8 @@ from libs.custom_api_docs import include_docs_urls
 from clients import views as client_view
 from candidate import views as candidate_view
 from interview import views as interview_view
+from leavemangement import views as leave_management
+
 
 
 
@@ -54,6 +56,15 @@ router.register(r'interviews',interview_view.InterviewViewSet,base_name='intervi
 router.register(r'interviewsround',interview_view.InterviewRoundViewSet,base_name='interviews')
 
 router.register(r'interviewsstatus',interview_view.InterviewStatusViewSet,base_name='interviews')
+
+
+router.register(r'leavemanagment',leave_management.LeaveTrackerViewSet,base_name='leaves')
+
+router.register(r'leavetype',leave_management.LeaveTypeViewSet,base_name='leaves')
+
+router.register(r'leavestatus',leave_management.LeaveStatusViewSet,base_name='leaves')
+
+
 
 
 

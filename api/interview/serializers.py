@@ -21,7 +21,7 @@ class InterviewCreateRequestSerializer(serializers.Serializer):
     interview_round=serializers.PrimaryKeyRelatedField(queryset=InterviewRound.objects.all(),required=True)
     candidate=serializers.SlugRelatedField(queryset=Candidate.objects.all(),required=False,slug_field="email")
     user=serializers.PrimaryKeyRelatedField(queryset=User.objects.all(),required=True)
-    interview_status=serializers.PrimaryKeyRelatedField(queryset=InterviewStatus.objects.all(),required=True)
+    interview_status=serializers.PrimaryKeyRelatedField(queryset=InterviewStatus.objects.all(),required=False)
 
 
 
@@ -136,7 +136,7 @@ class InterviewUpdateSerilaizer(serializers.ModelSerializer):
     interview_round=serializers.PrimaryKeyRelatedField(queryset=InterviewRound.objects.all(),required=True)
     candidate=serializers.PrimaryKeyRelatedField(queryset=Candidate.objects.all(),required=True)
     user=serializers.PrimaryKeyRelatedField(queryset=User.objects.all(),required=True)
-    interview_status=serializers.PrimaryKeyRelatedField(queryset=InterviewStatus.objects.all(),required=True)
+    interview_status=serializers.PrimaryKeyRelatedField(queryset=InterviewStatus.objects.all(),required=False)
 
     # expiring_on = serializers.DateTimeField(required=False)
 
@@ -210,7 +210,7 @@ class InterviewStatusRequestSerializer(serializers.Serializer):
         interview_status.save()
         return interview_status
 
-        
+
 class InterviewStatusDrowpdownGetSerializer(serializers.Serializer):
     value = serializers.CharField(source='status',required=True, min_length=2)
     label = serializers.CharField(source='status',required=True, min_length=2)
