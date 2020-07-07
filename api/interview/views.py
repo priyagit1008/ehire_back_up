@@ -38,7 +38,9 @@ from .serializers import (
 	InterviewRoundDrowpdownGetSerializer,
 	InterviewRoundListSerializer,
 	InterviewStatusRequestSerializer,
+	InterviewStatusDrowpdownGetSerializer,
 	InterviewStatusListSerializer
+
 )
 
 from .services import InterviewServices
@@ -284,7 +286,7 @@ class InterviewRoundViewSet(GenericViewSet):
 class InterviewStatusViewSet(GenericViewSet):
 	services = InterviewStatus_Services()
 
-	queryset = services.get_queryset()
+	# queryset = services.get_queryset()
 
 	filter_backends = (filters.OrderingFilter,)
 	authentication_classes = (TokenAuthentication,)
@@ -297,6 +299,7 @@ class InterviewStatusViewSet(GenericViewSet):
 	serializers_dict = {
 		'add_status': InterviewStatusRequestSerializer,
 		'status_get': InterviewStatusListSerializer,
+		'inetrviewstatus_dropdown':InterviewStatusDrowpdownGetSerializer,
 		'status_list': InterviewStatusListSerializer,
 	}
 
@@ -334,6 +337,17 @@ class InterviewStatusViewSet(GenericViewSet):
 				return Response(serializer.data, status.HTTP_200_OK)
 		except Exception as e:
 				return Response({"status": "Not Found"}, status.HTTP_404_NOT_FOUND)
+				
+
+	@action(methods=['get'], detail=False, permission_classes=[IsAuthenticated,], )
+	def inetrviewstatus_dropdown(self, request, **dict):
+		try:
+			filter_data = request.query_params.dict()
+			serializer = self.get_serializer(self.services.interviewstatus_filter_service(filter_data), many=True)
+			return Response(serializer.data, status.HTTP_200_OK)
+		except Exception as e:
+			raise
+			return Response({"status": "Not Found"}, status.HTTP_404_NOT_FOUND)
 
 
 	@action(methods=['get'], detail=False, permission_classes=[IsAuthenticated, ], )

@@ -210,6 +210,17 @@ class InterviewStatusRequestSerializer(serializers.Serializer):
         interview_status.save()
         return interview_status
 
+        
+class InterviewStatusDrowpdownGetSerializer(serializers.Serializer):
+    value = serializers.CharField(source='status',required=True, min_length=2)
+    label = serializers.CharField(source='status',required=True, min_length=2)
+    interview_status_id=serializers.CharField(source='id',required=True)
+
+    class Meta:
+        model = InterviewRound
+        fields = ('interview_status_id','value','label')
+
+
 class InterviewStatusListSerializer(serializers.ModelSerializer):
     class Meta:
         model= InterviewStatus

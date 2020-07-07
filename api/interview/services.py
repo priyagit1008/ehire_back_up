@@ -31,8 +31,9 @@ class InterviewRound_Services:
 
 
 class InterviewStatus_Services:
-	def get_queryset(self):
-		return InterviewStatus.objects.all()
+	
+	def interviewstatus_filter_service(self,filter_data):
+		return InterviewStatus.objects.filter(**filter_data)
 
 	def get_status_service(self,id):
 		return InterviewStatus.objects.get(id=id)

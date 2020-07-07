@@ -67,7 +67,7 @@ class Interview(TimeStampedModel):
 
 	interview_status= models.ForeignKey(InterviewStatus,on_delete=models.PROTECT,
 		related_name='InterviewStatus',
-		blank=False,default=None,null=True)
+		blank=False,default=STATUS.TS,null=True)
 	# status = models.CharField(max_length=256, choices=STATUS, default=STATUS.active)
 
 
