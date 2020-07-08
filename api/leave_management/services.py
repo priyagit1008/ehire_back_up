@@ -1,6 +1,6 @@
 import json
 from django.core import serializers
-from .models import LeaveType,LeaveStatus,LeaveTracker
+from .models import LeaveType,LeaveTracker
 class LeaveTrackerServices:
 
 	def leave_filter_service(self,filter_data):
@@ -25,12 +25,12 @@ class LeaveType_Services:
 
 
 
-class LeaveStatus_Services:
-	def LeaveStatus_filter_service(self,filter_data):
-		return LeaveStatus.objects.filter(**filter_data)
+# class LeaveStatus_Services:
+# 	def LeaveStatus_filter_service(self,filter_data):
+# 		return LeaveStatus.objects.filter(**filter_data)
 
-	def get_leavestatus_service(self,id):
-		return LeaveStatus.objects.get(id=id)
+# 	def get_leavestatus_service(self,id):
+# 		return LeaveStatus.objects.get(id=id)
 		
 
 

@@ -1,4 +1,3 @@
-
 # Create your models here.
 # python imports
 import uuid
@@ -21,28 +20,44 @@ class LeaveType(TimeStampedModel):
 		('Sick', 'SICK'),
 	)
 	id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+	leave_type = models.CharField(max_length=256, choices=LEAVE_TYPE, default=LEAVE_TYPE.Planned) 
 	available_leaves = models.IntegerField()
 
+	class Meta:
+		app_label = 'leave_management'
+		db_table = 'api_leave_type'
 
 
-class LeaveStatus(TimeStampedModel):
-	id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-	leave_status = models.CharField(
-		max_length=256,
-		unique=True,
-		blank=False
-		)
-	discription = models.TextField(blank=True)
-	last_updater = models.ForeignKey(User,on_delete=models.PROTECT, limit_choices_to={'is_staff': True})
 
+
+# class LeaveStatus(TimeStampedModel):
+# 	id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+# 	leave_status = models.CharField(
+# 		max_length=256,
+# 		unique=False,
+# 		blank=False
+# 		)
+# 	discription = models.TextField(blank=True)
+# 	last_updater= models.ForeignKey(User,on_delete=models.PROTECT,
+# 		related_name='user_accounts',
+# 		blank=False,null=True,default=None)
+
+# 	class Meta:
+# 		app_label = 'leavemanagement'
+# 		db_table = 'api_leave_status'
 	
 
 	
 class  LeaveTracker(TimeStampedModel):
+	LEAVE_STATUS = Choices(
+		('Pending', ' Pending'),
+		('Approved', 'Approved'),
+		('Rejected','Rejected'),
+	)
 	id = models.UUIDField(primary_key=True,default=uuid.uuid4,editable=False)
 	user = models.ForeignKey(User,on_delete=models.PROTECT)
 	leave_type = models.ForeignKey(LeaveType,on_delete=models.PROTECT)
-	leave_status = models.ForeignKey(LeaveStatus,on_delete=models.PROTECT)
+	leave_status = models.CharField(max_length=256, choices=LEAVE_STATUS, default=LEAVE_STATUS.Pending)
 	from_date = models.DateField()
 	to_date = models.DateField()
 	approved_date =models.DateField(blank=True,null=True)
@@ -61,4 +76,4 @@ class  LeaveTracker(TimeStampedModel):
 	class Meta:
 		app_label = 'leave_management'
 		db_table = 'api_tracker'
-
+# Create your models here.
