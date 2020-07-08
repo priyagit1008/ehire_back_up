@@ -57,13 +57,13 @@ class  LeaveTracker(TimeStampedModel):
 	id = models.UUIDField(primary_key=True,default=uuid.uuid4,editable=False)
 	user = models.ForeignKey(User,on_delete=models.PROTECT)
 	leave_type = models.ForeignKey(LeaveType,on_delete=models.PROTECT)
-	leave_status = models.CharField(max_length=256, choices=LEAVE_STATUS, default=LEAVE_STATUS.Pending)
-	from_date = models.DateField()
-	to_date = models.DateField()
+	leave_status = models.CharField(max_length=256, choices=LEAVE_STATUS,default=LEAVE_STATUS.Pending)
+	from_date = models.DateField(blank=False)
+	to_date = models.DateField(blank=False)
 	approved_date =models.DateField(blank=True,null=True)
-	total_leaves = models.IntegerField(default=1)
+	total_leaves = models.IntegerField(default=30)
 	discription = models.TextField(max_length=250,blank=True)
-	approved_by = models.ForeignKey(User,on_delete=models.PROTECT,related_name = 'approved_by',blank=True)
+	approved_by = models.ForeignKey(User,on_delete=models.PROTECT,related_name = 'approved_by',null=True,blank=True)
 
 	def modify(self, payload):
 		"""

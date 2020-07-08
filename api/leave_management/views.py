@@ -28,7 +28,9 @@ from accounts.models import User
 from .serializers import (
 	LeavetrackerRequestSerializer,
 	LeavetrackerListSerializer,
+	LeavestatusDrowpdownGetSerializer,
 	LeaveTypeRequestSerializer,
+	LeaveTypeDrowpdownGetSerializer,
 	LeaveTypeListSerializer,
 	# LeaveStatusRequestSerializer,
 	# LeaveStatusListSerializer
@@ -63,6 +65,7 @@ class LeaveTrackerViewSet(GenericViewSet):
 	serializers_dict = {
 		'add_leave': LeavetrackerRequestSerializer,
 		'get_leave': LeavetrackerListSerializer,
+		'leavestatus_dropdown':LeavestatusDrowpdownGetSerializer,
 		'leave_list':LeavetrackerListSerializer,
 
 	}
@@ -116,6 +119,18 @@ class LeaveTrackerViewSet(GenericViewSet):
 
 
 	@action(methods=['get'], detail=False, permission_classes=[IsAuthenticated,], )
+	def leavestatus_dropdown(self, request, **dict):
+		try:
+			filter_data = request.query_params.dict()
+			serializer = self.get_serializer(self.services.leave_filter_service(filter_data), many=True)
+			return Response(serializer.data, status.HTTP_200_OK)
+		except Exception as e:
+			raise
+			return Response({"status": "Not Found"}, status.HTTP_404_NOT_FOUND)
+
+
+
+	@action(methods=['get'], detail=False, permission_classes=[IsAuthenticated,], )
 	def leave_list(self, request, **dict):
 		try:
 			filter_data = request.query_params.dict()
@@ -147,6 +162,7 @@ class LeaveTypeViewSet(GenericViewSet):
 	serializers_dict = {
 		'add_leavetype': LeaveTypeRequestSerializer,
 		'get_leavetype': LeaveTypeListSerializer,
+		'leavetype_dropdown':LeaveTypeDrowpdownGetSerializer,
 		'leavetype_list':LeaveTypeListSerializer,
 
 	}
@@ -191,6 +207,18 @@ class LeaveTypeViewSet(GenericViewSet):
 				serializer = self.get_serializer(self.services.get_leavetype_service(id))
 				return Response(serializer.data, status.HTTP_200_OK)
 		except Exception as e:
+			return Response({"status": "Not Found"}, status.HTTP_404_NOT_FOUND)
+
+
+
+	@action(methods=['get'], detail=False, permission_classes=[IsAuthenticated,], )
+	def leavetype_dropdown(self, request, **dict):
+		try:
+			filter_data = request.query_params.dict()
+			serializer = self.get_serializer(self.services.LeaveType_filter_service(filter_data), many=True)
+			return Response(serializer.data, status.HTTP_200_OK)
+		except Exception as e:
+			raise
 			return Response({"status": "Not Found"}, status.HTTP_404_NOT_FOUND)
 
 
