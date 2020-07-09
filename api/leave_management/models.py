@@ -21,30 +21,10 @@ class LeaveType(TimeStampedModel):
 	)
 	id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 	leave_type = models.CharField(max_length=256, choices=LEAVE_TYPE, default=LEAVE_TYPE.Planned) 
-	available_leaves = models.IntegerField()
 
 	class Meta:
 		app_label = 'leave_management'
 		db_table = 'api_leave_type'
-
-
-
-
-# class LeaveStatus(TimeStampedModel):
-# 	id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-# 	leave_status = models.CharField(
-# 		max_length=256,
-# 		unique=False,
-# 		blank=False
-# 		)
-# 	discription = models.TextField(blank=True)
-# 	last_updater= models.ForeignKey(User,on_delete=models.PROTECT,
-# 		related_name='user_accounts',
-# 		blank=False,null=True,default=None)
-
-# 	class Meta:
-# 		app_label = 'leavemanagement'
-# 		db_table = 'api_leave_status'
 	
 
 	
@@ -59,10 +39,12 @@ class  LeaveTracker(TimeStampedModel):
 	leave_type = models.ForeignKey(LeaveType,on_delete=models.PROTECT)
 	leave_status = models.CharField(max_length=256, choices=LEAVE_STATUS,default=LEAVE_STATUS.Pending)
 	from_date = models.DateField(blank=False)
+	applied_date=models.DateField(auto_now_add=True,null=True)
 	to_date = models.DateField(blank=False)
 	approved_date =models.DateField(blank=True,null=True)
 	total_leaves = models.IntegerField(default=30)
-	discription = models.TextField(max_length=250,blank=True)
+	available_leaves = models.IntegerField(default=30,null=True,blank=False)
+	description = models.CharField(max_length=250,blank=True)
 	approved_by = models.ForeignKey(User,on_delete=models.PROTECT,related_name = 'approved_by',null=True,blank=True)
 
 	def modify(self, payload):
@@ -76,4 +58,5 @@ class  LeaveTracker(TimeStampedModel):
 	class Meta:
 		app_label = 'leave_management'
 		db_table = 'api_tracker'
-# Create your models here.
+
+

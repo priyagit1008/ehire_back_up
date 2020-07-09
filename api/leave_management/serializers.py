@@ -15,19 +15,20 @@ class LeavetrackerRequestSerializer(serializers.Serializer):
 	user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(),required=True)
 	from_date = serializers.DateField(input_formats=['%d-%m-%Y',],required=True)
 	to_date = serializers.DateField(input_formats=['%d-%m-%Y',],required=True)
-	approved_date = serializers.DateField(input_formats=['%d-%m-%Y',],required=False)
-	total_leaves = serializers.CharField(required=False)
+	# approved_date = serializers.DateField(input_formats=['%d-%m-%Y',],required=False)
+	total_leaves = serializers.IntegerField(required=False)
+	# available_leaves=serializers.IntegerField(required=False)
 	leave_type = serializers.PrimaryKeyRelatedField(queryset=LeaveType.objects.all(),required=True)
 	leave_status = serializers.CharField(required=False)
-	discription = serializers.CharField(required=False)
+	description = serializers.CharField(required=False)
 	approved_by = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(),required=False)
 
 
 	class Meta:
 		models = LeaveTracker
 		# fields='__all__'
-		fields = ('id','user','from_date','to_date','approved_date','total_leaves','leave_type','leave_status','discription',
-				'approved_by')
+		fields = ('id','user','from_date','to_date','approved_date','total_leaves','leave_type','leave_status','description',
+				'approved_by','applied_date','available_leaves')
 
 
 	def  create(self,validated_data):
@@ -60,19 +61,54 @@ class UserGetSerializer(serializers.ModelSerializer):
 		# fields ='__all__'
 		fields= ('id','full_name')
 
+
+class LeaveTypeListSerializer(serializers.ModelSerializer):
+
+	class Meta:
+		model= LeaveType
+		fields= ('id','leave_type')
+
 class LeavetrackerListSerializer(serializers.ModelSerializer):
 	user = UserGetSerializer()
 	approved_by=UserGetSerializer()
+	leave_type=LeaveTypeListSerializer()
 	class Meta:
 		model= LeaveTracker
-		fields=('id','user','from_date','to_date','approved_date','total_leaves','leave_type','leave_status','discription',
-				'approved_by')
+		fields=('id','user','from_date','to_date','approved_date','total_leaves','leave_type','leave_status','description',
+				'approved_by','applied_date','available_leaves')
+
+
+
+class LeaveUpdateSerilaizer(serializers.ModelSerializer):
+    id=serializers.CharField(required=True)
+    user=serializers.PrimaryKeyRelatedField(queryset=User.objects.all(),required=True)
+    from_date = serializers.DateField(input_formats=['%d-%m-%Y',],required=True)
+    to_date = serializers.DateField(input_formats=['%d-%m-%Y',],required=True)
+    leave_status = serializers.CharField(required=False)
+
+    leave_type=serializers.PrimaryKeyRelatedField(queryset=LeaveType.objects.all(),required=True)
+    description=serializers.CharField(required=True)
+    approved_by=serializers.PrimaryKeyRelatedField(queryset=User.objects.all(),required=True)
+
+    # expiring_on = serializers.DateTimeField(required=False)
+
+    def update(self, instance, validated_data):
+        for attr ,value in validated_data.items():
+            setattr(instance,attr,value)
+        instance.save()
+        return instance
+
+    class Meta:
+        model = LeaveTracker
+        # fields = ('id','date','location','interview_round','interview_status')
+        fields='__all__'
+
+
 
 
 
 class LeaveTypeRequestSerializer(serializers.Serializer):
 	leave_type=serializers.CharField(required=False)
-	available_leaves = serializers.IntegerField(required=False)
 
 	class Meta:
 		model = LeaveType
@@ -126,6 +162,7 @@ class LeaveTypeDrowpdownGetSerializer(serializers.ModelSerializer):
 #   class Meta:
 #       models = LeaveType
 #       fields = '__all__'
+
 
 
 

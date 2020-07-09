@@ -28,6 +28,7 @@ from accounts.models import User
 from .serializers import (
 	LeavetrackerRequestSerializer,
 	LeavetrackerListSerializer,
+	LeaveUpdateSerilaizer,
 	LeavestatusDrowpdownGetSerializer,
 	LeaveTypeRequestSerializer,
 	LeaveTypeDrowpdownGetSerializer,
@@ -66,6 +67,7 @@ class LeaveTrackerViewSet(GenericViewSet):
 		'add_leave': LeavetrackerRequestSerializer,
 		'get_leave': LeavetrackerListSerializer,
 		'leavestatus_dropdown':LeavestatusDrowpdownGetSerializer,
+		'leave_update':LeaveUpdateSerilaizer,
 		'leave_list':LeavetrackerListSerializer,
 
 	}
@@ -127,6 +129,28 @@ class LeaveTrackerViewSet(GenericViewSet):
 		except Exception as e:
 			raise
 			return Response({"status": "Not Found"}, status.HTTP_404_NOT_FOUND)
+
+
+
+	@action(methods=['put'], detail=False, permission_classes=[IsAuthenticated,], )
+	def leave_update(self, request):
+		"""
+		Return user profile data and groups
+		"""
+		try:
+			data=request.data
+			id=data["id"]
+			serializer=self.get_serializer(self.services.update_leave_service(id),data=request.data)
+			if not serializer.is_valid():
+				print(serializer.errors)
+				raise ParseException({'status':'Incorrect Input'},serializer.errors)
+			else:
+				serializer.save()    
+				return Response({"status":"updated Successfully"},status.HTTP_200_OK)
+		except Exception as e:
+			raise
+			return Response({"status":"Not Found"},status.HTTP_404_NOT_FOUND)
+
 
 
 
@@ -232,80 +256,3 @@ class LeaveTypeViewSet(GenericViewSet):
 			raise
 			return Response({"status": "Not Found"}, status.HTTP_404_NOT_FOUND)
 
-
-
-# class LeaveStatusViewSet(GenericViewSet):
-# 	"""docstring for interview"""
-
-# 	services = LeaveStatus_Services()
-
-# 	# queryset = services.get_queryset()
-
-# 	filter_backends = (filters.OrderingFilter,)
-# 	authentication_classes = (TokenAuthentication,)
-
-# 	ordering_fields = ('id',)
-# 	ordering = ('id',)
-# 	lookup_field = 'id'
-# 	http_method_names = ['get', 'post', 'put']
-
-# 	serializers_dict = {
-# 		'add_leavestatus': LeaveStatusRequestSerializer,
-# 		'get_leavesatus': LeaveStatusListSerializer,
-# 		'leavesatus_list':LeaveStatusListSerializer,
-
-# 	}
-
-# 	def get_serializer_class(self):
-# 		"""
-# 		:return:
-# 		"""
-# 		try:
-# 			return self.serializers_dict[self.action]
-# 		except KeyError as key:
-# 			raise ParseException(BAD_ACTION, errors=key)
-
-# 	@action(methods=['post'], detail=False, permission_classes=[IsAuthenticated, ], )
-# 	def add_leavestatus(self, request):
-
-# 		serializer = self.get_serializer(data=request.data)
-# 		if serializer.is_valid() is False:
-# 			print(serializer.errors)
-# 			raise ParseException(BAD_REQUEST, serializer.errors)
-			
-# 		leavestatus = serializer.create(serializer.validated_data)
-# 		if leavestatus:
-# 			return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-# 		return Response({"status": "error"}, status.HTTP_404_NOT_FOUND)
-
-
-
-# 	@action(methods=['get', 'patch'], detail=False, permission_classes=[IsAuthenticated, ], )
-# 	def get_leavesatus(self, request):
-# 		"""
-# 		Return client profile data and groups
-# 		"""
-# 		try:
-# 			id= request.GET.get('id', None)
-# 			if not id:
-# 				return Response({"status": "Failed", "message":"id is required"})
-# 			else:
-# 				serializer = self.get_serializer(self.services.get_leavestatus_service(id))
-# 				return Response(serializer.data, status.HTTP_200_OK)
-# 		except Exception as e:
-# 			return Response({"status": "Not Found"}, status.HTTP_404_NOT_FOUND)
-
-
-# 	@action(methods=['get'], detail=False, permission_classes=[IsAuthenticated,], )
-# 	def leavesatus_list(self, request, **dict):
-# 		try:
-# 			filter_data = request.query_params.dict()
-# 			serializer = self.get_serializer(self.services.LeaveStatus_filter_service(filter_data), many=True)
-# 			return Response(serializer.data, status.HTTP_200_OK)
-# 		except Exception as e:
-# 			raise
-# 			return Response({"status": "Not Found"}, status.HTTP_404_NOT_FOUND)
-from django.shortcuts import render
-
-# Create your views here.
