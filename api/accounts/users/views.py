@@ -505,8 +505,11 @@ class UserViewSet(GenericViewSet):
 			"active_candidate":Candidate.objects.filter(is_active=True).count(),
 			"closed_candidate":Candidate.objects.filter(is_active=False).count()}
 
-
-		return Response({"user": user,"interview":interview,"client":client,"jobs":job,"candidates":candidate},status.HTTP_200_OK)
+		interview={
+			"interview_count":Interview.objects.count(),
+			"active_interview":Interview.objects.filter(is_active=True).count(),
+			"closed_interview":Interview.objects.filter(is_active=False).count()}
+			return Response({"user": user,"interview":interview,"client":client,"jobs":job,"candidates":candidate,"interview":interview},status.HTTP_200_OK)
 
 	
 	@action(
