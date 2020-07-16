@@ -53,6 +53,8 @@ class CandidateViewSet(GenericViewSet):
 	"""docstring for candidateViewset"""
 	permissions=(HiroolReadOnly,HiroolReadWrite)
 	services = CandidateServices()
+	queryset=Candidate.objects.all()
+
 	filter_backends = (filters.OrderingFilter,)
 	parser_class = (FileUploadParser,)
 
@@ -68,6 +70,12 @@ class CandidateViewSet(GenericViewSet):
 			'candidate_update':CandidateUpdateSerializer,
 			# 'candidate_dropdown':CandidateDropdownListSerializer,
 			}
+
+
+	def get_queryset(self,filterdata=None):
+		if filterdata:
+			self.queryset =Candidate.objects.filter(**filterdata)
+		return self.queryset
 
 	def get_serializer_class(self):
 		"""
@@ -105,6 +113,18 @@ class CandidateViewSet(GenericViewSet):
 		return Response({"status": "Not Found"},status.HTTP_404_NOT_FOUND) 
 
 
+	def candidate_query_string(self,filterdata):
+		if "prefered_location" in filterdata:
+			filterdata["prefered_location__icontains"] = filterdata.pop("prefered_location")
+		if "tech_skills" in filterdata:
+			filterdata["tech_skills__icontains"] = filterdata.pop("tech_skills")
+		if "work_experience" in filterdata:
+			filterdata["work_experience__icontains"] = filterdata.pop("work_experience")
+		if "current_ctc" in filterdata:
+			filterdata["current_ctc__gte"] = filterdata.pop("current_ctc")
+		if "expected_ctc" in filterdata:
+			filterdata["expected_ctc__lte"] = filterdata.pop("expected_ctc")
+		return filterdata
 		
 	
 	@action(methods=['get'],detail=False,permission_classes=[IsAuthenticated,],)
@@ -113,11 +133,12 @@ class CandidateViewSet(GenericViewSet):
 		Returns candidate list
 		"""
 		try:
-			filter_data=request.query_params.dict()
-			serializer=self.get_serializer(self.services.get_queryset_service(filter_data), many=True)
-			return Response(serializer.data,status.HTTP_200_OK)
+			filterdata = self.candidate_query_string(request.query_params.dict())
+			serializer = self.get_serializer(self.get_queryset(filterdata), many=True)
+			return Response(serializer.data, status.HTTP_200_OK)
 		except Exception as e:
-			return Response({"status":"Not Found"},status.HTTP_404_NOT_FOUND)
+			raise
+			return Response({"status": "Not Found"}, status.HTTP_404_NOT_FOUND)
 
 
 

@@ -139,31 +139,4 @@ class LeaveTypeDrowpdownGetSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = LeaveType
 		fields = ('leavetype_id','value','label')
-
-		# fields = '__all__'
-
-
-# class LeaveStatusRequestSerializer(serializers.Serializer):
-#   leave_status = serializers.CharField(required=True) 
-#   discription = serializers.CharField(required=True) 
-#   last_updater = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(),required=False)
-
-#   class Meta:
-#       models = LeaveStatus
-#       fields =('id','leave_status','discription','last_updater') 
-
-#   def create(self,validated_data):
-#       leavestatus=LeaveStatus.objects.create(**validated_data)
-#       leavestatus.save()
-#       return leavestatus
-
-# class LeaveStatusListSerializer(serializers.Serializer):
-
-#   class Meta:
-#       models = LeaveType
-#       fields = '__all__'
-
-
-
-
-
+		

@@ -82,6 +82,8 @@ class UserViewSet(GenericViewSet):
 	"""
 	permissions = (HiroolReadOnly,)
 	services = UserServices()
+	queryset=User.objects.all()
+
 	filter_backends = (filters.OrderingFilter,)
 	authentication_classes = (TokenAuthentication,)
 	permission_classes = (IsAuthenticated,)
@@ -101,6 +103,13 @@ class UserViewSet(GenericViewSet):
 		'user_profile':UserListSerialize, 
 		'user_dropdown':UserDrowpdownGetSerializer ,
 		'delete_user':UserListSerialize }
+
+
+	def get_queryset(self,filterdata=None):
+		if filterdata:
+			self.queryset =User.objects.filter(**filterdata)
+		return self.queryset
+
 
 	def get_serializer_class(self):
 		"""
@@ -166,26 +175,41 @@ class UserViewSet(GenericViewSet):
 		request.user.auth_token.delete()
 		return Response(status=status.HTTP_200_OK)
 
+    def user_query_string(self,filterdata):
+    	if "work_experience" in filterdata:
+			filterdata["work_experience__icontains"] = filterdata.pop("work_experience")
+		if "designation" in filterdata:
+			filterdata["designation__icontains"] = filterdata.pop("designation")
+		if "status" in filterdata:
+			filterdata["status__icontains"] = filterdata.pop("status")
+		if "reporting_to" in filterdata:
+			filterdata["reporting_to__gte"] = filterdata.pop("reporting_to")
+		if "joined_date" in filterdata:
+			filterdata["joined_date__lte"] = filterdata.pop("joined_date")
+		return filterdata
 
-
+		
 	@action(
 		methods=['get'],
 		detail=False,
 		# url_path='image-upload',
-		permission_classes=[IsAuthenticated, ],
+		permission_classes=[IsAuthenticated, ],pagination_class=[CursorSetPagination,]
 	)
+
+
 	def list_exec(self, request, **dict):
 		"""
 		Return user list data and groups
 		"""
 		try:
-			filter_data = request.query_params.dict()
-			serializer = self.get_serializer(self.services.get_queryset(filter_data), many=True)
+			filterdata = self.user_query_string(request.query_params.dict())
+			serializer = self.get_serializer(self.get_queryset(filterdata), many=True)
 			return Response(serializer.data, status.HTTP_200_OK)
 		except Exception as e:
 			raise
 			return Response({"status": "Not Found"}, status.HTTP_404_NOT_FOUND)
 	
+    
     
     
 	@action(
@@ -533,7 +557,11 @@ class UserViewSet(GenericViewSet):
 		jd={ "jd":Job.objects.annotate(month=TruncMonth('created_at')).
 		values('month').annotate(total=Count('id')).order_by()}
 
-		return Response({"user": user,"clients": client,"candidates": candidate,"jds": jd},status.HTTP_200_OK)
+		interview={ "interview":Interview.objects.annotate(month=TruncMonth('created_at')).
+		values('month').annotate(total=Count('id')).order_by()}
+
+
+		return Response({"user": user,"clients": client,"candidates": candidate,"jds": jd,"interviews":interview},status.HTTP_200_OK)
 
 
 

@@ -54,6 +54,8 @@ class ClientViewSet(GenericViewSet):
 	"""
 	permissions=(HiroolReadOnly,HiroolReadWrite)
 	services = ClientServices()
+	queryset = Client.objects.all()
+
 	filter_backends = (filters.OrderingFilter,)
 	authentication_classes = (TokenAuthentication,)
 
@@ -74,6 +76,12 @@ class ClientViewSet(GenericViewSet):
 		# 'org_dropdown':ClientGetSerializer,
 
 	}
+
+	def get_queryset(self,filterdata=None):
+        if filterdata:
+            self.queryset = Client.objects.filter(**filterdata)
+        return self.queryset
+
 
 	def get_serializer_class(self):
 		"""
@@ -119,23 +127,33 @@ class ClientViewSet(GenericViewSet):
 		except Exception as e:
 			return Response({"status": "Not Found"}, status.HTTP_404_NOT_FOUND)
 
-	@action(
-		methods=['get'],
-		detail=False,
-		# url_path='image-upload',
-		permission_classes=[IsAuthenticated, ],
-	)
-	def org_list(self, request, **dict):
-		"""
-		Return user list data and groups
-		"""
-		try:
-			filter_data = request.query_params.dict()
-			serializer = self.get_serializer(self.services.get_queryset(filter_data), many=True)
-			return Response(serializer.data, status.HTTP_200_OK)
-		except Exception as e:
-			return Response({"status": "Not Found"}, status.HTTP_404_NOT_FOUND)
+	 def query_string(self,filterdata):
+        if "name" in filterdata:
+            filterdata["name__icontains"] = filterdata.pop("name")
+        if "category" in filterdata:
+         	filterdata["category__icontains"] = filterdata.pop("category")
+        if "industry" in filterdata:
+        	filterdata["industry__icontains"] = filterdata.pop("industry")
+        return filterdata
 
+
+
+    @action(
+        methods=['get'],
+        detail=False,
+        # url_path='image-upload',
+        permission_classes=[IsAuthenticated, ],
+    )
+    def org_list(self, request,**dict):
+        """
+        Return user list data and groups
+        """
+        try:
+            filterdata = self.query_string(request.query_params.dict())
+            serializer = self.get_serializer(self.get_queryset(filterdata), many=True)
+            return Response(serializer.data, status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"status": "Not Found"}, status.HTTP_404_NOT_FOUND)
 
 	@action(
 		methods=['get'],
@@ -268,6 +286,7 @@ class JobViewSet(GenericViewSet):
 	# queryset = Job.objects.all()
 	filter_backends = (filters.OrderingFilter,)
 	authentication_classes = (TokenAuthentication,)
+    queryset=Job.objects.all()
 
 	ordering_fields = ('id',)
 	ordering = ('id',)
@@ -287,8 +306,13 @@ class JobViewSet(GenericViewSet):
 	services = JobServices()
 
 	# queryset = services.get_queryset()
-
-  
+        
+    def get_queryset(self,filterdata=None):
+        if filterdata:
+            self.queryset = Job.objects.filter(**filterdata)
+            print(Job.objects.filter(**filterdata))
+        return self.queryset
+     
 	 
 	def get_serializer_class(self):
 		"""
@@ -335,20 +359,58 @@ class JobViewSet(GenericViewSet):
 			raise
 			return Response({"status": False}, status.HTTP_404_NOT_FOUND)
 		return Response(serializer.data, status.HTTP_200_OK)
-			
-	
+     
 
-	@action(methods=['get'], detail=False, permission_classes=[IsAuthenticated,],)
-	def job_list(self, request,**dict):
-		"""
-		Returns all jd details
-		"""
-		try:
-			filter_data = request.query_params.dict()
-			serializer=self.get_serializer(self.services.get_queryset(filter_data), many=True)
-			return Response(serializer.data,status.HTTP_200_OK)
-		except Exception as e:
-			return Response({"status":"Not Found"},status.HTTP_404_NOT_FOUND)
+       def job_query_string(self,filterdata):
+        if "job_title" in filterdata:
+            filterdata["job_title__icontains"] = filterdata.pop("job_title")
+
+        if "tech_skills" in filterdata:
+            filterdata["tech_skills__icontains"] = filterdata.pop("tech_skills")
+
+        if "job_location" in filterdata:
+            filterdata["job_location__icontains"] = filterdata.pop("job_location")
+
+        if "min_exp" in filterdata:
+            filterdata["min_exp__gte"] = filterdata.pop("min_exp")
+
+        if "max_exp" in filterdata:
+            filterdata["max_exp__lte"] = filterdata.pop("max_exp")
+
+        if "min_ctc" in filterdata:
+            filterdata["min_ctc__gte"] = filterdata.pop("min_ctc")
+
+        if "max_ctc" in filterdata:
+            filterdata["max_ctc__lte"] = filterdata.pop("max_ctc")
+
+        if "qualification" in filterdata:
+            filterdata["qualification__icontains"] = filterdata.pop("qualification")
+
+        if "percentage_criteria" in filterdata:
+            filterdata["percentage_criteria__icontains"] = filterdata.pop("percentage_criteria")
+        print(filterdata)
+        return filterdata
+
+
+
+    
+    @action(methods=['get'], detail=False, permission_classes=[IsAuthenticated,],)
+    def job_list(self, request,**dict):
+        """
+        Returns all jd details
+        """
+        try:
+            filterdata = self.job_query_string(request.query_params.dict())
+            print(request.query_params.dict())
+            serializer = self.get_serializer(self.get_queryset(filterdata), many=True)
+            print(serializer.data)
+            return Response(serializer.data, status.HTTP_200_OK)
+        except Exception as e:
+            raise
+            return Response({"status": "Not Found"}, status.HTTP_404_NOT_FOUND)
+
+
+
 
 
 	@action(methods=['get','put'], detail=False, permission_classes=[IsAuthenticated,],)
