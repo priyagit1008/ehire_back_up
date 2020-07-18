@@ -57,6 +57,7 @@ class LeaveTrackerViewSet(GenericViewSet):
 
 	filter_backends = (filters.OrderingFilter,)
 	authentication_classes = (TokenAuthentication,)
+    queryset = LeaveTracker.objects.all()
 
 	ordering_fields = ('id',)
 	ordering = ('id',)
@@ -71,6 +72,12 @@ class LeaveTrackerViewSet(GenericViewSet):
 		'leave_list':LeavetrackerListSerializer,
 
 	}
+
+	def get_queryset(self,filterdata=None):
+		if filterdata:
+			self.queryset = LeaveTracker.objects.filter(**filterdata)
+			print(LeaveTracker.objects.filter(**filterdata))
+		return self.queryset
 
 	def get_serializer_class(self):
 		"""
@@ -152,17 +159,38 @@ class LeaveTrackerViewSet(GenericViewSet):
 			return Response({"status":"Not Found"},status.HTTP_404_NOT_FOUND)
 
 
+	def leave_query_string(self,filterdata):
+
+
+		if "leave_type" in filterdata:
+			filterdata["leave_type__leave_type"] = filterdata.pop("leave_type")
+
+		if "leave_status" in filterdata:
+			filterdata["leave_status__icontains"] = filterdata.pop("leave_status")
+
+		if "from_date" in filterdata:
+			filterdata["from_date__gte"] = filterdata.pop("from_date")
+
+		if "to_date" in filterdata:
+			filterdata["to_date__lte"] = filterdata.pop("to_date")
+			
+		if "approved_by" in filterdata:
+			filterdata["approved_by__icontains"] = filterdata.pop("approved_by")
+		return filterdata
 
 
 	@action(methods=['get'], detail=False, permission_classes=[IsAuthenticated,], )
 	def leave_list(self, request, **dict):
 		try:
-			filter_data = request.query_params.dict()
-			serializer = self.get_serializer(self.services.leave_filter_service(filter_data), many=True)
+			filterdata = self.leave_query_string(request.query_params.dict())
+			print(request.query_params.dict())
+			serializer = self.get_serializer(self.get_queryset(filterdata), many=True)
+			print(serializer.data)
 			return Response(serializer.data, status.HTTP_200_OK)
 		except Exception as e:
 			raise
 			return Response({"status": "Not Found"}, status.HTTP_404_NOT_FOUND)
+
 
 
 

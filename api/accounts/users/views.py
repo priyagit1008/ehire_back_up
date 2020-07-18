@@ -176,16 +176,30 @@ class UserViewSet(GenericViewSet):
 		return Response(status=status.HTTP_200_OK)
 
     def user_query_string(self,filterdata):
-    	if "work_experience" in filterdata:
-			filterdata["work_experience__icontains"] = filterdata.pop("work_experience")
+    	if "work_location" in filterdata:
+			filterdata["work_location__icontains"] = filterdata.pop("work_location")
+
 		if "designation" in filterdata:
 			filterdata["designation__icontains"] = filterdata.pop("designation")
+
 		if "status" in filterdata:
 			filterdata["status__icontains"] = filterdata.pop("status")
+
 		if "reporting_to" in filterdata:
 			filterdata["reporting_to__gte"] = filterdata.pop("reporting_to")
-		if "joined_date" in filterdata:
-			filterdata["joined_date__lte"] = filterdata.pop("joined_date")
+
+		if "joined_date_from" in filterdata:
+			filterdata["joined_date__gte"] = filterdata.pop("joined_date_from")
+
+		if "joined_date_to" in filterdata:
+			filterdata["joined_date__lte"] = filterdata.pop("joined_date_to")
+
+		if "resigned_date_from" in filterdata:
+			filterdata["resigned_date__gte"] = filterdata.pop("resigned_date_from")
+
+		if "resigned_date_to" in filterdata:
+			filterdata["resigned_date__lte"] = filterdata.pop("resigned_date_to")
+			
 		return filterdata
 
 		

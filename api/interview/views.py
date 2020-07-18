@@ -52,6 +52,7 @@ class InterviewViewSet(GenericViewSet):
 	"""docstring for ClassName"""
 	permissions = (HiroolReadOnly, HiroolReadWrite)
 	services = InterviewServices()
+    queryset=Interview.objects.all()
 
 	# queryset = services.get_queryset()
 
@@ -70,6 +71,13 @@ class InterviewViewSet(GenericViewSet):
 		'interview_update': InterviewUpdateSerilaizer,
 		'delete_interview': InterviewListSerializer,
 	}
+
+	def get_queryset(self,filterdata=None):
+		if filterdata:
+			self.queryset = Interview.objects.filter(**filterdata)
+			print(Interview.objects.filter(**filterdata))
+		return self.queryset
+
 
 	def get_serializer_class(self):
 		"""
@@ -113,19 +121,48 @@ class InterviewViewSet(GenericViewSet):
 			return Response({"status": False}, status.HTTP_404_NOT_FOUND)
 		return Response(serializer.data, status.HTTP_200_OK)
 
+	def interview_query_string(self,filterdata):
+		if "client" in filterdata:
+			filterdata["client__name"] = filterdata.pop("client")
+
+		if "job" in filterdata:
+			filterdata["job__job_title"] = filterdata.pop("job")
+
+		if "candidate" in filterdata:
+			filterdata["candidate__email"] = filterdata.pop("candidate")
+
+		if "interview_round" in filterdata:
+			filterdata["interview_round__interview_round"] = filterdata.pop("interview_round")
+
+		if "interview_status" in filterdata:
+			filterdata["interview_status__interview_status"] = filterdata.pop("interview_status")
+
+		if "location" in filterdata:
+			filterdata["location__icontains"] = filterdata.pop("location")
+
+		if "date_from" in filterdata:
+			filterdata["date__gte"] = filterdata.pop("date_from")
+
+		if "date_to" in filterdata:
+			filterdata["date__lte"] = filterdata.pop("date_to")
+		return filterdata
 
 
 
-	@action(methods=['get'], detail=False, permission_classes=[IsAuthenticated,], )
-	def interview_list(self, request, **dict):
+	@action(methods=['get'], detail=False, permission_classes=[IsAuthenticated,],)
+	def interview_list(self, request,**dict):
+		"""
+		Returns all jd details
+		"""
 		try:
-			filter_data = request.query_params.dict()
-			serializer = self.get_serializer(self.services.interview_filter_service(filter_data), many=True)
+			filterdata = self.interview_query_string(request.query_params.dict())
+			print(request.query_params.dict())
+			serializer = self.get_serializer(self.get_queryset(filterdata), many=True)
+			print(serializer.data)
 			return Response(serializer.data, status.HTTP_200_OK)
 		except Exception as e:
 			raise
 			return Response({"status": "Not Found"}, status.HTTP_404_NOT_FOUND)
-
 
 
 

@@ -129,11 +129,12 @@ class ClientViewSet(GenericViewSet):
 
 	 def query_string(self,filterdata):
         if "name" in filterdata:
-            filterdata["name__icontains"] = filterdata.pop("name")
-        if "category" in filterdata:
-         	filterdata["category__icontains"] = filterdata.pop("category")
-        if "industry" in filterdata:
-        	filterdata["industry__icontains"] = filterdata.pop("industry")
+			filterdata["name__icontains"] = filterdata.pop("name")
+			return filterdata
+		if "category" in filterdata:
+			filterdata["category__icontains"] = filterdata.pop("category")
+		if "industry" in filterdata:
+			filterdata["industry__icontains"] = filterdata.pop("industry")
         return filterdata
 
 
@@ -362,32 +363,41 @@ class JobViewSet(GenericViewSet):
      
 
        def job_query_string(self,filterdata):
-        if "job_title" in filterdata:
-            filterdata["job_title__icontains"] = filterdata.pop("job_title")
+        if "client" in filterdata:
+			filterdata["client__name"] = filterdata.pop("client")
 
-        if "tech_skills" in filterdata:
-            filterdata["tech_skills__icontains"] = filterdata.pop("tech_skills")
+		if "job_title" in filterdata:
+			filterdata["job_title__icontains"] = filterdata.pop("job_title")
 
-        if "job_location" in filterdata:
-            filterdata["job_location__icontains"] = filterdata.pop("job_location")
+		if "tech_skills" in filterdata:
+			filterdata["tech_skills__icontains"] = filterdata.pop("tech_skills")
 
-        if "min_exp" in filterdata:
-            filterdata["min_exp__gte"] = filterdata.pop("min_exp")
+		if "job_location" in filterdata:
+			filterdata["job_location__icontains"] = filterdata.pop("job_location")
 
-        if "max_exp" in filterdata:
-            filterdata["max_exp__lte"] = filterdata.pop("max_exp")
+		if "min_exp" in filterdata:
+			filterdata["min_exp__gte"] = filterdata.pop("min_exp")
 
-        if "min_ctc" in filterdata:
-            filterdata["min_ctc__gte"] = filterdata.pop("min_ctc")
+		if "max_exp" in filterdata:
+			filterdata["max_exp__lte"] = filterdata.pop("max_exp")
 
-        if "max_ctc" in filterdata:
-            filterdata["max_ctc__lte"] = filterdata.pop("max_ctc")
+		if "min_ctc" in filterdata:
+			filterdata["min_ctc__gte"] = filterdata.pop("min_ctc")
 
-        if "qualification" in filterdata:
-            filterdata["qualification__icontains"] = filterdata.pop("qualification")
+		if "max_ctc" in filterdata:
+			filterdata["max_ctc__lte"] = filterdata.pop("max_ctc")
 
-        if "percentage_criteria" in filterdata:
-            filterdata["percentage_criteria__icontains"] = filterdata.pop("percentage_criteria")
+		if "qualification" in filterdata:
+			filterdata["qualification__icontains"] = filterdata.pop("qualification")
+
+		if "percentage_criteria" in filterdata:
+			filterdata["percentage_criteria__icontains"] = filterdata.pop("percentage_criteria")
+
+		if "min_notice_period" in filterdata:
+			filterdata["min_notice_period__gte"] = filterdata.pop("min_notice_period")
+
+		if "max_notice_period" in filterdata:
+			filterdata["max_notice_period__lte"] = filterdata.pop("max_notice_period")
         print(filterdata)
         return filterdata
 

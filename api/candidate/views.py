@@ -116,14 +116,27 @@ class CandidateViewSet(GenericViewSet):
 	def candidate_query_string(self,filterdata):
 		if "prefered_location" in filterdata:
 			filterdata["prefered_location__icontains"] = filterdata.pop("prefered_location")
+
 		if "tech_skills" in filterdata:
 			filterdata["tech_skills__icontains"] = filterdata.pop("tech_skills")
-		if "work_experience" in filterdata:
-			filterdata["work_experience__icontains"] = filterdata.pop("work_experience")
+
+		if "work_experience_from" in filterdata:
+			filterdata["work_experience__gte"] = filterdata.pop("work_experience_from")
+
+		if "work_experience_to" in filterdata:
+			filterdata["work_experience__lte"] = filterdata.pop("work_experience_to")
+
 		if "current_ctc" in filterdata:
 			filterdata["current_ctc__gte"] = filterdata.pop("current_ctc")
+
 		if "expected_ctc" in filterdata:
 			filterdata["expected_ctc__lte"] = filterdata.pop("expected_ctc")
+
+		if "notice_period_from" in filterdata:
+			filterdata["notice_period__gte"]  = filterdata.pop("notice_period_from")
+
+		if "notice_period_to" in filterdata:
+			filterdata["notice_period__lte"]  = filterdata.pop("notice_period_to")
 		return filterdata
 		
 	
