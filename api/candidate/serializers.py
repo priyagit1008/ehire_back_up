@@ -103,7 +103,17 @@ class CandidateUpdateSerializer(serializers.ModelSerializer):
 		"""docstring for Meta"""
 		model=Candidate
 		fields='__all__'
-		
+
+
+
+class CandidateSkillsDrowpdownGetSerializer(serializers.Serializer):
+    candidate_id =serializers.CharField(source='id',required=True,min_length=2)
+    value = serializers.CharField(source='tech_skills',required=True, min_length=2)
+    label = serializers.CharField(source='tech_skills',required=True, min_length=2)
+    
+    class Meta:
+        model = Client
+        fields = ('candidate_id','value','label')		
 			
 
 class DownloadResumeSerializer(serializers.ModelSerializer):

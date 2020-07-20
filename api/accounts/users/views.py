@@ -83,6 +83,8 @@ class UserViewSet(GenericViewSet):
 	permissions = (HiroolReadOnly,)
 	services = UserServices()
 	queryset=User.objects.all()
+	paginator = Paginator(queryset, 3)
+
 
 	filter_backends = (filters.OrderingFilter,)
 	authentication_classes = (TokenAuthentication,)
@@ -217,14 +219,14 @@ class UserViewSet(GenericViewSet):
 		"""
 		try:
 			filterdata = self.user_query_string(request.query_params.dict())
-			serializer = self.get_serializer(self.get_queryset(filterdata), many=True)
-			return Response(serializer.data, status.HTTP_200_OK)
+			page = self.paginator.get_page(self.get_queryset(filterdata))
+			serializer = self.get_serializer(page,many=True)
+			return Response(serialiser.data,status.HTTP_200_OK)
 		except Exception as e:
 			raise
 			return Response({"status": "Not Found"}, status.HTTP_404_NOT_FOUND)
-	
-    
-    
+
+
     
 	@action(
 		methods=['get'],

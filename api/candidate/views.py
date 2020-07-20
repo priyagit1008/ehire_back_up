@@ -68,7 +68,7 @@ class CandidateViewSet(GenericViewSet):
 			'candidate_list':CandidateListSerializer,
 			'candidate_get':CandidateListSerializer,
 			'candidate_update':CandidateUpdateSerializer,
-			# 'candidate_dropdown':CandidateDropdownListSerializer,
+			'candidate_dropdown':CandidateSkillsDrowpdownGetSerializer,
 			}
 
 
