@@ -55,6 +55,8 @@ class ClientViewSet(GenericViewSet):
 	permissions=(HiroolReadOnly,HiroolReadWrite)
 	services = ClientServices()
 	queryset = Client.objects.all()
+	paginator = Paginator(queryset, 10)
+
 
 	filter_backends = (filters.OrderingFilter,)
 	authentication_classes = (TokenAuthentication,)
@@ -151,7 +153,9 @@ class ClientViewSet(GenericViewSet):
         """
         try:
             filterdata = self.query_string(request.query_params.dict())
-            serializer = self.get_serializer(self.get_queryset(filterdata), many=True)
+			page = self.paginator.get_page(self.get_queryset(filterdata))
+
+            serializer = self.get_serializer(page, many=True)
             return Response(serializer.data, status.HTTP_200_OK)
         except Exception as e:
             return Response({"status": "Not Found"}, status.HTTP_404_NOT_FOUND)
@@ -288,6 +292,8 @@ class JobViewSet(GenericViewSet):
 	filter_backends = (filters.OrderingFilter,)
 	authentication_classes = (TokenAuthentication,)
     queryset=Job.objects.all()
+	paginator = Paginator(queryset, 10)
+
 
 	ordering_fields = ('id',)
 	ordering = ('id',)
@@ -411,9 +417,9 @@ class JobViewSet(GenericViewSet):
         """
         try:
             filterdata = self.job_query_string(request.query_params.dict())
-            print(request.query_params.dict())
+			page = self.paginator.get_page(self.get_queryset(filterdata))
+
             serializer = self.get_serializer(self.get_queryset(filterdata), many=True)
-            print(serializer.data)
             return Response(serializer.data, status.HTTP_200_OK)
         except Exception as e:
             raise

@@ -58,6 +58,8 @@ class LeaveTrackerViewSet(GenericViewSet):
 	filter_backends = (filters.OrderingFilter,)
 	authentication_classes = (TokenAuthentication,)
     queryset = LeaveTracker.objects.all()
+	paginator = Paginator(queryset, 10)
+
 
 	ordering_fields = ('id',)
 	ordering = ('id',)
@@ -183,9 +185,9 @@ class LeaveTrackerViewSet(GenericViewSet):
 	def leave_list(self, request, **dict):
 		try:
 			filterdata = self.leave_query_string(request.query_params.dict())
-			print(request.query_params.dict())
-			serializer = self.get_serializer(self.get_queryset(filterdata), many=True)
-			print(serializer.data)
+			page = self.paginator.get_page(self.get_queryset(filterdata))
+
+			serializer = self.get_serializer(page, many=True)
 			return Response(serializer.data, status.HTTP_200_OK)
 		except Exception as e:
 			raise

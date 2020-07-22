@@ -83,7 +83,7 @@ class UserViewSet(GenericViewSet):
 	permissions = (HiroolReadOnly,)
 	services = UserServices()
 	queryset=User.objects.all()
-	paginator = Paginator(queryset, 3)
+	paginator = Paginator(queryset, 10)
 
 
 	filter_backends = (filters.OrderingFilter,)
@@ -209,7 +209,7 @@ class UserViewSet(GenericViewSet):
 		methods=['get'],
 		detail=False,
 		# url_path='image-upload',
-		permission_classes=[IsAuthenticated, ],pagination_class=[CursorSetPagination,]
+		permission_classes=[IsAuthenticated,],
 	)
 
 
@@ -221,7 +221,7 @@ class UserViewSet(GenericViewSet):
 			filterdata = self.user_query_string(request.query_params.dict())
 			page = self.paginator.get_page(self.get_queryset(filterdata))
 			serializer = self.get_serializer(page,many=True)
-			return Response(serialiser.data,status.HTTP_200_OK)
+			return Response(serializer.data,status.HTTP_200_OK)
 		except Exception as e:
 			raise
 			return Response({"status": "Not Found"}, status.HTTP_404_NOT_FOUND)

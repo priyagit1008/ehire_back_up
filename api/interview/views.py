@@ -53,6 +53,8 @@ class InterviewViewSet(GenericViewSet):
 	permissions = (HiroolReadOnly, HiroolReadWrite)
 	services = InterviewServices()
     queryset=Interview.objects.all()
+	paginator = Paginator(queryset, 10)
+
 
 	# queryset = services.get_queryset()
 
@@ -156,8 +158,8 @@ class InterviewViewSet(GenericViewSet):
 		"""
 		try:
 			filterdata = self.interview_query_string(request.query_params.dict())
-			print(request.query_params.dict())
-			serializer = self.get_serializer(self.get_queryset(filterdata), many=True)
+			page = self.paginator.get_page(self.get_queryset(filterdata))
+			serializer = self.get_serializer(page, many=True)
 			print(serializer.data)
 			return Response(serializer.data, status.HTTP_200_OK)
 		except Exception as e:

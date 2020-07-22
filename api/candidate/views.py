@@ -55,6 +55,9 @@ class CandidateViewSet(GenericViewSet):
 	services = CandidateServices()
 	queryset=Candidate.objects.all()
 
+	paginator = Paginator(queryset, 10)
+
+
 	filter_backends = (filters.OrderingFilter,)
 	parser_class = (FileUploadParser,)
 
@@ -147,7 +150,9 @@ class CandidateViewSet(GenericViewSet):
 		"""
 		try:
 			filterdata = self.candidate_query_string(request.query_params.dict())
-			serializer = self.get_serializer(self.get_queryset(filterdata), many=True)
+			page = self.paginator.get_page(self.get_queryset(filterdata))
+
+			serializer = self.get_serializer(page, many=True)
 			return Response(serializer.data, status.HTTP_200_OK)
 		except Exception as e:
 			raise
