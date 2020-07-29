@@ -43,6 +43,7 @@ from libs import (
 				mail,
 				)
 from api.default_settings import MEDIA_ROOT 
+from libs.pagination import StandardResultsSetPagination
 
 from libs.exceptions import ParseException
 import codecs 
@@ -55,7 +56,7 @@ class CandidateViewSet(GenericViewSet):
 	services = CandidateServices()
 	queryset=Candidate.objects.all()
 
-	paginator = Paginator(queryset, 10)
+	pagination_class = StandardResultsSetPagination
 
 
 	filter_backends = (filters.OrderingFilter,)
@@ -117,6 +118,32 @@ class CandidateViewSet(GenericViewSet):
 
 
 	def candidate_query_string(self,filterdata):
+		dictionary={}
+			 
+		if "prefered_location" in filterdata:
+			dictionary["prefered_location__icontains"] = filterdata.pop("prefered_location")
+
+		if "tech_skills" in filterdata:
+			dictionary["tech_skills__icontains"] = filterdata.pop("tech_skills")
+
+
+		if "work_experience_from" in filterdata:
+			dictionary["work_experience__gte"] = filterdata.pop("work_experience_from")
+
+		if "work_experience_to" in filterdata:
+			dictionary["work_experience__lte"] = filterdata.pop("work_experience_to")
+		if "current_ctc" in filterdata:
+			dictionary["current_ctc__gte"] = filterdata.pop("current_ctc")
+		if "expected_ctc" in filterdata:
+			dictionary["expected_ctc__lte"] = filterdata.pop("expected_ctc")
+		if "notice_period_from" in filterdata:
+			dictionary["notice_period__gte"] = filterdata.pop("notice_period_from")
+		if "notice_period_to" in filterdata:
+			dictionary["notice_period__lte"] = filterdata.pop("notice_period_to")
+
+
+
+
 		if "prefered_location" in filterdata:
 			filterdata["prefered_location__icontains"] = filterdata.pop("prefered_location")
 
@@ -140,7 +167,8 @@ class CandidateViewSet(GenericViewSet):
 
 		if "notice_period_to" in filterdata:
 			filterdata["notice_period__lte"]  = filterdata.pop("notice_period_to")
-		return filterdata
+		
+		return dictionary
 		
 	
 	@action(methods=['get'],detail=False,permission_classes=[IsAuthenticated,],)
@@ -150,10 +178,11 @@ class CandidateViewSet(GenericViewSet):
 		"""
 		try:
 			filterdata = self.candidate_query_string(request.query_params.dict())
-			page = self.paginator.get_page(self.get_queryset(filterdata))
+			# page_result = self.candidate_query_set(filterdata)
+			page = self.paginate_queryset(self.get_queryset(filterdata))
+			serializer = self.get_serializer(page,many=True)
 
-			serializer = self.get_serializer(page, many=True)
-			return Response(serializer.data, status.HTTP_200_OK)
+			return self.get_paginated_response(serializer.data)
 		except Exception as e:
 			raise
 			return Response({"status": "Not Found"}, status.HTTP_404_NOT_FOUND)

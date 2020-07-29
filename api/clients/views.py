@@ -19,6 +19,8 @@ from libs.constants import (
 		BAD_ACTION,
 )
 from libs.exceptions import ParseException
+from libs.pagination import StandardResultsSetPagination
+
 
 # app level imports
 from .models import Client, Job 
@@ -55,7 +57,7 @@ class ClientViewSet(GenericViewSet):
 	permissions=(HiroolReadOnly,HiroolReadWrite)
 	services = ClientServices()
 	queryset = Client.objects.all()
-	paginator = Paginator(queryset, 10)
+	pagination_class = StandardResultsSetPagination
 
 
 	filter_backends = (filters.OrderingFilter,)
@@ -130,14 +132,26 @@ class ClientViewSet(GenericViewSet):
 			return Response({"status": "Not Found"}, status.HTTP_404_NOT_FOUND)
 
 	 def query_string(self,filterdata):
-        if "name" in filterdata:
+        dictionary={}
+			 
+		if "name" in filterdata:
+			dictionary["name"] = filterdata.pop("name")
+		if "category" in filterdata:
+			dictionary["category__icontains"] = filterdata.pop("category")
+		if "industry" in filterdata:
+			dictionary["industry__icontains"] = filterdata.pop("industry")
+
+
+
+
+		if "name" in filterdata:
 			filterdata["name__icontains"] = filterdata.pop("name")
 			return filterdata
 		if "category" in filterdata:
 			filterdata["category__icontains"] = filterdata.pop("category")
 		if "industry" in filterdata:
 			filterdata["industry__icontains"] = filterdata.pop("industry")
-        return filterdata
+		return dictionary
 
 
 
@@ -152,13 +166,13 @@ class ClientViewSet(GenericViewSet):
         Return user list data and groups
         """
         try:
-            filterdata = self.query_string(request.query_params.dict())
-			page = self.paginator.get_page(self.get_queryset(filterdata))
+			filterdata = self.query_string(request.query_params.dict())
+			page = self.paginate_queryset(self.get_queryset(filterdata))
+			serializer = self.get_serializer(page,many=True)
 
-            serializer = self.get_serializer(page, many=True)
-            return Response(serializer.data, status.HTTP_200_OK)
-        except Exception as e:
-            return Response({"status": "Not Found"}, status.HTTP_404_NOT_FOUND)
+			return self.get_paginated_response(serializer.data)
+		except Exception as e:
+			return Response({"status": "Not Found"}, status.HTTP_404_NOT_FOUND)
 
 	@action(
 		methods=['get'],
@@ -292,7 +306,7 @@ class JobViewSet(GenericViewSet):
 	filter_backends = (filters.OrderingFilter,)
 	authentication_classes = (TokenAuthentication,)
     queryset=Job.objects.all()
-	paginator = Paginator(queryset, 10)
+	pagination_class = StandardResultsSetPagination
 
 
 	ordering_fields = ('id',)
@@ -369,7 +383,35 @@ class JobViewSet(GenericViewSet):
      
 
        def job_query_string(self,filterdata):
-        if "client" in filterdata:
+        dictionary={}
+			 
+		if "client" in filterdata:
+			dictionary["client__name"] = filterdata.pop("client")
+		if "job_title" in filterdata:
+			dictionary["job_title"] = filterdata.pop("job_title")
+		if "tech_skills" in filterdata:
+			dictionary["tech_skills"] = filterdata.pop("tech_skills")
+		if "job_location" in filterdata:
+			dictionary["job_location"] = filterdata.pop("job_location")
+		if "min_exp" in filterdata:
+			dictionary["min_exp__gte"] = filterdata.pop("min_exp")
+		if "max_exp" in filterdata:
+			dictionary["max_exp__lte"] = filterdata.pop("max_exp")
+		if "min_ctc" in filterdata:
+			dictionary["min_ctc__gte"] = filterdata.pop("min_ctc")
+		if "max_ctc" in filterdata:
+			dictionary["max_ctc__lte"] = filterdata.pop("max_ctc")
+		if "qualification" in filterdata:
+			dictionary["qualification"] = filterdata.pop("qualification")
+		if "percentage_criteria" in filterdata:
+			dictionary["percentage_criteria"] = filterdata.pop("percentage_criteria")
+		if "min_notice_period" in filterdata:
+			dictionary["min_notice_period__gte"] = filterdata.pop("min_notice_period")
+		if "max_notice_period" in filterdata:
+			dictionary["max_notice_period__lte"] = filterdata.pop("max_notice_period")
+
+
+		if "client" in filterdata:
 			filterdata["client__name"] = filterdata.pop("client")
 
 		if "job_title" in filterdata:
@@ -404,9 +446,7 @@ class JobViewSet(GenericViewSet):
 
 		if "max_notice_period" in filterdata:
 			filterdata["max_notice_period__lte"] = filterdata.pop("max_notice_period")
-        print(filterdata)
-        return filterdata
-
+		return dictionary
 
 
     
@@ -416,14 +456,16 @@ class JobViewSet(GenericViewSet):
         Returns all jd details
         """
         try:
-            filterdata = self.job_query_string(request.query_params.dict())
-			page = self.paginator.get_page(self.get_queryset(filterdata))
+			filterdata = self.job_query_string(request.query_params.dict())
+			page = self.paginate_queryset(self.get_queryset(filterdata))
+			serializer = self.get_serializer(page,many=True)
 
-            serializer = self.get_serializer(self.get_queryset(filterdata), many=True)
-            return Response(serializer.data, status.HTTP_200_OK)
-        except Exception as e:
-            raise
-            return Response({"status": "Not Found"}, status.HTTP_404_NOT_FOUND)
+			return self.get_paginated_response(serializer.data)
+
+			# return Response(serializer.data, status.HTTP_200_OK)
+		except Exception as e:
+			raise
+			return Response({"status": "Not Found"}, status.HTTP_404_NOT_FOUND)
 
 
 

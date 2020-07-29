@@ -74,6 +74,8 @@ from libs.clients import (
 	redis_client
 )
 from libs.exceptions import ParseException
+from libs.pagination import StandardResultsSetPagination
+
 from django.contrib.auth import authenticate
 
 
@@ -83,7 +85,7 @@ class UserViewSet(GenericViewSet):
 	permissions = (HiroolReadOnly,)
 	services = UserServices()
 	queryset=User.objects.all()
-	paginator = Paginator(queryset, 10)
+	pagination_class = StandardResultsSetPagination
 
 
 	filter_backends = (filters.OrderingFilter,)
@@ -178,7 +180,31 @@ class UserViewSet(GenericViewSet):
 		return Response(status=status.HTTP_200_OK)
 
     def user_query_string(self,filterdata):
-    	if "work_location" in filterdata:
+    	dictionary={}
+			 
+		if "designation" in filterdata:
+			dictionary["designation__icontains"] = filterdata.pop("designation")
+
+
+		if "status" in filterdata:
+			dictionary["status"] = filterdata.pop("status")
+		if "work_location" in filterdata:
+			dictionary["work_location__icontains"] = filterdata.pop("work_location")
+		if "reporting_to" in filterdata:
+			dictionary["reporting_to"] = filterdata.pop("reporting_to")
+		if "joined_date_from" in filterdata:
+			dictionary["joined_date__gte"] = filterdata.pop("joined_date_from")
+		if "joined_date_to" in filterdata:
+			dictionary["joined_date__lte"] = filterdata.pop("joined_date_to")
+		if "resigned_date_from" in filterdata:
+			dictionary["resigned_date__gte"] = filterdata.pop("resigned_date_from")
+		if "resigned_date_to" in filterdata:
+			dictionary["resigned_date__lte"] = filterdata.pop("resigned_date_to")
+
+
+
+
+		if "work_location" in filterdata:
 			filterdata["work_location__icontains"] = filterdata.pop("work_location")
 
 		if "designation" in filterdata:
@@ -201,8 +227,10 @@ class UserViewSet(GenericViewSet):
 
 		if "resigned_date_to" in filterdata:
 			filterdata["resigned_date__lte"] = filterdata.pop("resigned_date_to")
-			
-		return filterdata
+		
+		
+
+		return dictionary
 
 		
 	@action(
@@ -219,12 +247,17 @@ class UserViewSet(GenericViewSet):
 		"""
 		try:
 			filterdata = self.user_query_string(request.query_params.dict())
-			page = self.paginator.get_page(self.get_queryset(filterdata))
+			print(filterdata)
+
+			page = self.paginate_queryset(self.get_queryset(filterdata))
+			# print(page)
 			serializer = self.get_serializer(page,many=True)
-			return Response(serializer.data,status.HTTP_200_OK)
+			return self.get_paginated_response(serializer.data)
 		except Exception as e:
 			raise
 			return Response({"status": "Not Found"}, status.HTTP_404_NOT_FOUND)
+
+
 
 
     

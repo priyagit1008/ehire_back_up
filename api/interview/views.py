@@ -20,6 +20,8 @@ from libs.constants import (
 	BAD_ACTION,
 )
 from libs.exceptions import ParseException
+from libs.pagination import StandardResultsSetPagination
+
 
 # app level imports
 from .models import Interview, InterviewRound, InterviewStatus
@@ -53,7 +55,7 @@ class InterviewViewSet(GenericViewSet):
 	permissions = (HiroolReadOnly, HiroolReadWrite)
 	services = InterviewServices()
     queryset=Interview.objects.all()
-	paginator = Paginator(queryset, 10)
+	pagination_class = StandardResultsSetPagination
 
 
 	# queryset = services.get_queryset()
@@ -124,6 +126,30 @@ class InterviewViewSet(GenericViewSet):
 		return Response(serializer.data, status.HTTP_200_OK)
 
 	def interview_query_string(self,filterdata):
+		dictionary={}
+			 
+		if "client" in filterdata:
+			dictionary["client__name"] = filterdata.pop("client")
+		if "job" in filterdata:
+			dictionary["job__job_title"] = filterdata.pop("job")
+		if "candidate" in filterdata:
+			dictionary["candidate__email"] = filterdata.pop("candidate")
+		if "interview_round" in filterdata:
+			dictionary["interview_round__interview_round"] = filterdata.pop("interview_round")
+		if "interview_status" in filterdata:
+			dictionary["interview_status__status"] = filterdata.pop("interview_status")
+		if "location" in filterdata:
+			dictionary["location__icontains"] = filterdata.pop("location")
+		if "date_from" in filterdata:
+			dictionary["date__gte"] = filterdata.pop("date_from")
+		if "date_to" in filterdata:
+			dictionary["date__lte"] = filterdata.pop("date_to")
+		# if "job" in filterdata:
+		# 	dictionary["job__job_title"] = filterdata.pop("job")
+		# if "job" in filterdata:
+		# 	dictionary["job__job_title"] = filterdata.pop("job")
+
+
 		if "client" in filterdata:
 			filterdata["client__name"] = filterdata.pop("client")
 
@@ -137,7 +163,7 @@ class InterviewViewSet(GenericViewSet):
 			filterdata["interview_round__interview_round"] = filterdata.pop("interview_round")
 
 		if "interview_status" in filterdata:
-			filterdata["interview_status__interview_status"] = filterdata.pop("interview_status")
+			filterdata["interview_status__status"] = filterdata.pop("interview_status")
 
 		if "location" in filterdata:
 			filterdata["location__icontains"] = filterdata.pop("location")
@@ -147,7 +173,8 @@ class InterviewViewSet(GenericViewSet):
 
 		if "date_to" in filterdata:
 			filterdata["date__lte"] = filterdata.pop("date_to")
-		return filterdata
+		return dictionary
+
 
 
 
@@ -158,14 +185,13 @@ class InterviewViewSet(GenericViewSet):
 		"""
 		try:
 			filterdata = self.interview_query_string(request.query_params.dict())
-			page = self.paginator.get_page(self.get_queryset(filterdata))
-			serializer = self.get_serializer(page, many=True)
-			print(serializer.data)
-			return Response(serializer.data, status.HTTP_200_OK)
+			page = self.paginate_queryset(self.get_queryset(filterdata))
+			serializer = self.get_serializer(page,many=True)
+
+			return self.get_paginated_response(serializer.data)
 		except Exception as e:
 			raise
 			return Response({"status": "Not Found"}, status.HTTP_404_NOT_FOUND)
-
 
 
 	@action(methods=['put'], detail=False, permission_classes=[IsAuthenticated,], )
