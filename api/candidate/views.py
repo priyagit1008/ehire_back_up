@@ -317,3 +317,28 @@ class CandidateViewSet(GenericViewSet):
 			return Response("hi")
 		except Exception as e:
 			return Response({"status": str(e)}, status.HTTP_404_NOT_FOUND)
+
+	@action(
+		methods=['get'],
+		detail=False,permission_classes=[],
+	)
+	def csv_fil_reader(self,request):
+		# fileForInput = open('input.in','r')
+		try:
+			with open('/home/priya/workspace/hire-api/api/libs/json_files/sample.csv','r') as file:
+				dr=csv.DictReader(file)
+				cand=Candidate()
+				candidates=[]
+				for row in dr:
+					candidate_obj=Candidate(**row)
+					try:
+						candidate_obj.full_clean()
+					except ValidationError:
+						continue
+					candidates.append(candidate_obj)
+				data=Candidate.objects.bulk_create(candidates).count()
+				return Response({"status":"Successfully inserted"},status=status.HTTP_201_CREATED)
+		except Exception as e:
+			raise
+			return Response({"status":str(e)},status.HTTP_404_NOT_FOUND)
+
