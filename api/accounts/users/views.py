@@ -405,47 +405,46 @@ class UserViewSet(GenericViewSet):
 
 	@action(
 		methods=['get'],
-		detail=False, permission_classes=[IsAuthenticated, ], )
+		detail=False, )
 	def send_email(self, request):
-		"""
-		send mail api
-		"""
 		try:
 			email = request.GET.get('email', None)
+
 			if not email:
 				return Response({"status": "Failed", "message":"email  is required"})
 			else:
-				user_obj = User.objects.get(email=email,is_active=True)
+				user_obj = self.services.email_service(email)  
 				otp = otpgenerate.otpgen(self)
-				print(otp)
 				redis_client.store_data(email,otp)
-				print(redis_client.get_Key_data(email))
-				mail.sendmail.delay(otp,"Forgate password",[request.user.email])
-				return Response({"status":"email sent"}, status.HTTP_200_OK)
+				mail.sendmail(otp,"Forgate password",[email])
+				return Response({"status": "otp is generated Successfully","otp":d1,"d2":d2}, status.HTTP_200_OK)
 		except Exception as e:
+			raise
 			return Response({"status": str(e)}, status.HTTP_404_NOT_FOUND)
+
+
 
 
 	@action(
 		methods=['put'],
-		detail=False, permission_classes=[IsAuthenticated, ],
-	)
+		detail=False, )
 	def forgotpass(self, request):
 		"""
 		Returns forgot password
 		"""
 		try:
 			data = request.data
-			user_obj = User.objects.get(email=data["email"], is_active=True)
+			# print(data)
+			user_obj = self.services.email_service(email=data["email"])
+			id=user_obj.id
 			if not redis_client.key_exists(data["email"]):
-				print(data["email"])
-				return Response({"status": "Bad Otp"}, status=status.HTTP_400_BAD_REQUEST)
+				redis_client.key_exists(data["email"])
+				return Response({"status": "Wrong otp","email":d1}, status=status.HTTP_400_BAD_REQUEST)
 			if not redis_client.get_Key_data(data["email"]):
-				print(data["email"])
-				return Response({"status": "Bad Otp"}, status=status.HTTP_400_BAD_REQUEST)
+				redis_client.get_Key_data(data["email"])
+				return Response({"status": "Bad Otp","otp":d2}, status=status.HTTP_400_BAD_REQUEST)
 
 			redis_client.delete_Key_data(data["email"])
-
 			serializer = self.get_serializer(user_obj, data=data)
 			if not serializer.is_valid():
 				return Response({"status": "Not Found"}, status.HTTP_404_NOT_FOUND)
@@ -453,10 +452,11 @@ class UserViewSet(GenericViewSet):
 				serializer.save()
 				return Response({"status": "Successfully Updated password"}, status.HTTP_200_OK)
 			except Exception as e:
+				raise
 				return Response({"status": str(e)}, status.HTTP_404_NOT_FOUND)
-		except Exception as e:
-			raise
-			return Response({"status": str(e)}, status.HTTP_404_NOT_FOUND)
+		except Exception as e:s
+		raise
+		return Response({"status": str(e)}, status.HTTP_404_NOT_FOUND)
 
 	@action(
 		methods=['put'],

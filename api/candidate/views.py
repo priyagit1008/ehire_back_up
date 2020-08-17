@@ -339,6 +339,9 @@ class CandidateViewSet(GenericViewSet):
 				except ValidationError:
 					continue
 				candidates.append(candidate_obj)
+
+			
+			
 			data=Candidate.objects.bulk_create(candidates)
 			return Response({"status":"Successfully inserted"},status=status.HTTP_201_CREATED)
 		except Exception as e:
